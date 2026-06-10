@@ -1,7 +1,7 @@
 """뉴스·공시 분석가 — DART 공시 + 최근 뉴스 호재/악재 평가."""
 from claude_agent_sdk import AgentDefinition
 
-from ..config import SUBAGENT_MODEL
+from ..config import NEWS_DISCLOSURE_AGENT_MODEL
 from ..tools import mcp_name
 
 NEWS_DISCLOSURE_AGENT = AgentDefinition(
@@ -48,5 +48,5 @@ NEWS_DISCLOSURE_AGENT = AgentDefinition(
         "- 펀더멘털·기술적 분석은 다른 agent 영역이므로 다루지 않는다.\n"
         "- 분석 완료 후 위 형식의 markdown 한 덩어리만 반환한다.\n"
     ),
-    model=SUBAGENT_MODEL,
+    model=NEWS_DISCLOSURE_AGENT_MODEL,
 )

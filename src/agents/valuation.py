@@ -1,7 +1,7 @@
 """밸류에이션 전문가 — 적정가치·목표주가 산정."""
 from claude_agent_sdk import AgentDefinition
 
-from ..config import SUBAGENT_MODEL
+from ..config import VALUATION_AGENT_MODEL
 from ..tools import mcp_name
 
 VALUATION_AGENT = AgentDefinition(
@@ -51,5 +51,5 @@ VALUATION_AGENT = AgentDefinition(
         "- 데이터 부족 시 한계를 명시하고 가능한 범위만 산출.\n"
         "- 분석 완료 후 위 형식의 markdown 한 덩어리만 반환한다.\n"
     ),
-    model=SUBAGENT_MODEL,
+    model=VALUATION_AGENT_MODEL,
 )

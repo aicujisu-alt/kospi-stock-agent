@@ -1,7 +1,7 @@
 """펀더멘털 분석가 — 재무제표·재무비율 기반 분석."""
 from claude_agent_sdk import AgentDefinition
 
-from ..config import SUBAGENT_MODEL
+from ..config import FUNDAMENTAL_AGENT_MODEL
 from ..tools import mcp_name
 
 FUNDAMENTAL_AGENT = AgentDefinition(
@@ -48,5 +48,5 @@ FUNDAMENTAL_AGENT = AgentDefinition(
         "- 숫자 단위는 억원/조원으로 변환해 가독성 확보.\n"
         "- 분석 완료 후 위 형식의 markdown 한 덩어리만 반환한다. 추가 설명·인사 금지.\n"
     ),
-    model=SUBAGENT_MODEL,
+    model=FUNDAMENTAL_AGENT_MODEL,
 )

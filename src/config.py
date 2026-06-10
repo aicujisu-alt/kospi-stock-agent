@@ -16,8 +16,12 @@ DART_API_KEY = os.getenv("DART_API_KEY", "")
 REPORT_OUTPUT_DIR = Path(os.getenv("REPORT_OUTPUT_DIR", PROJECT_ROOT / "reports"))
 REPORT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-SUBAGENT_MODEL = os.getenv("SUBAGENT_MODEL", "haiku")
-MASTER_AGENT_MODEL = os.getenv("MASTER_AGENT_MODEL", "sonnet")
+MASTER_AGENT_MODEL = os.getenv("MASTER_AGENT_MODEL", "opus")
+
+FUNDAMENTAL_AGENT_MODEL = os.getenv("FUNDAMENTAL_AGENT_MODEL", "sonnet")
+TECHNICAL_AGENT_MODEL = os.getenv("TECHNICAL_AGENT_MODEL", "haiku")
+NEWS_DISCLOSURE_AGENT_MODEL = os.getenv("NEWS_DISCLOSURE_AGENT_MODEL", "sonnet")
+VALUATION_AGENT_MODEL = os.getenv("VALUATION_AGENT_MODEL", "sonnet")
 
 
 def require_keys() -> None:

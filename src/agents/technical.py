@@ -1,7 +1,7 @@
 """기술적 분석가 — 차트·지표 기반 분석."""
 from claude_agent_sdk import AgentDefinition
 
-from ..config import SUBAGENT_MODEL
+from ..config import TECHNICAL_AGENT_MODEL
 from ..tools import mcp_name
 
 TECHNICAL_AGENT = AgentDefinition(
@@ -48,5 +48,5 @@ TECHNICAL_AGENT = AgentDefinition(
         "- 펀더멘털·뉴스에 대한 언급은 하지 않는다 (다른 agent 영역).\n"
         "- 분석 완료 후 위 형식의 markdown 한 덩어리만 반환한다.\n"
     ),
-    model=SUBAGENT_MODEL,
+    model=TECHNICAL_AGENT_MODEL,
 )

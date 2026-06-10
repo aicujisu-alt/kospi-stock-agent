@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ name }} ({{ ticker }}) 투자 분석 리포트 — {{ generated_at }}</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f8f9fb;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --buy: #16a34a;
+      --hold: #6b7280;
+      --sell: #dc2626;
+      --positive: #16a34a;
+      --negative: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .header .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .verdict {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .verdict .badge {
+      display: inline-block;
+      padding: 12px 32px;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .badge.buy { background: var(--buy); }
+    .badge.hold { background: var(--hold); }
+    .badge.sell { background: var(--sell); }
+    .verdict .target {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 8px 0 4px;
+    }
+    .verdict .target-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .verdict .horizon {
+      margin-top: 12px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .summary {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .summary .label {
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .summary h2 {
+      font-size: 22px;
+      margin: 0 0 16px;
+      line-height: 1.4;
+    }
+    .risks ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .risks li {
+      margin-bottom: 4px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .stat-card .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .stat-card .value {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .stat-card .sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .positive { color: var(--positive); }
+    .negative { color: var(--negative); }
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .chart-card h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+    .analyses {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .analysis-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .analysis-card h3 {
+      margin: 0 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 17px;
+    }
+    .analysis-card .md {
+      font-size: 14px;
+    }
+    .md h1, .md h2, .md h3, .md h4 { margin-top: 16px; margin-bottom: 8px; }
+    .md h3 { font-size: 15px; }
+    .md h4 { font-size: 14px; }
+    .md table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 8px 0;
+    }
+    .md th, .md td {
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      text-align: right;
+    }
+    .md th:first-child, .md td:first-child { text-align: left; }
+    .md th { background: #f3f4f6; }
+    .md ul, .md ol { padding-left: 20px; }
+    .synthesis {
+      background: linear-gradient(135deg, #eff6ff, #ffffff);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .synthesis h3 {
+      margin: 0 0 12px;
+      color: var(--primary);
+    }
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 768px) {
+      .hero, .analyses { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>{{ name }} <span style="font-size:18px;color:var(--muted);font-weight:400;">({{ ticker }})</span></h1>
+        <div class="meta">{{ company.get("corp_name_eng", "") }} · {{ company.get("ceo_nm", "") }} 대표</div>
+      </div>
+      <div class="meta">생성 일시: {{ generated_at }}</div>
+    </div>
+
+    <div class="hero">
+      <div class="verdict">
+        <div class="badge {{ verdict_class }}">{{ report.investment_opinion }}</div>
+        <div class="target-label">목표 주가</div>
+        <div class="target">{{ report.target_price | krw }}</div>
+        <div class="target-label">
+          현재가 {{ indicators.current_price | krw }}
+          {%- if upside is not none %}
+          · 상승여력 <span class="{{ 'positive' if upside >= 0 else 'negative' }}">{{ '%+.1f' % upside }}%</span>
+          {%- endif %}
+        </div>
+        <div class="horizon">투자 기간: <strong>{{ report.investment_horizon }}</strong></div>
+      </div>
+
+      <div class="summary">
+        <div class="label">한 줄 요약</div>
+        <h2>{{ report.one_line_summary }}</h2>
+        <div class="label">핵심 리스크 Top 3</div>
+        <div class="risks">
+          <ul>
+            {% for risk in report.key_risks %}
+            <li>{{ risk }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="label">현재가</div>
+        <div class="value">{{ indicators.current_price | krw }}</div>
+        {% if indicators.price_change_1d_pct is not none %}
+        <div class="sub {{ 'positive' if indicators.price_change_1d_pct >= 0 else 'negative' }}">
+          {{ '%+.2f' % indicators.price_change_1d_pct }}% (1일)
+        </div>
+        {% endif %}
+      </div>
+      <div class="stat-card">
+        <div class="label">시가총액</div>
+        <div class="value">{{ market.market_cap_krw | krw_compact }}</div>
+        <div class="sub">상장주식 {{ market.listed_shares | num_compact }}주</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">PER / PBR</div>
+        <div class="value">{{ '%.1f' % market.PER }} / {{ '%.2f' % market.PBR }}</div>
+        <div class="sub">EPS {{ market.EPS | krw }} · BPS {{ market.BPS | krw }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">52주 고/저</div>
+        <div class="value" style="font-size:16px;">{{ indicators.high_52w | krw }} / {{ indicators.low_52w | krw }}</div>
+        <div class="sub">
+          고점 대비 <span class="{{ 'positive' if indicators.high_52w_distance_pct >= 0 else 'negative' }}">{{ '%+.1f' % indicators.high_52w_distance_pct }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>주가 흐름 (최근 6개월)</h3>
+      <canvas id="priceChart" height="100"></canvas>
+    </div>
+
+    <div class="synthesis">
+      <h3>🎯 종합 의견</h3>
+      <div class="md">{{ report.master_synthesis | markdown | safe }}</div>
+    </div>
+
+    <div class="analyses">
+      <div class="analysis-card">
+        <h3>📊 펀더멘털 분석</h3>
+        <div class="md">{{ report.fundamental_analysis | markdown | safe }}</div>
+      </div>
+      <div class="analysis-card">
+        <h3>📈 기술적 분석</h3>
+        <div class="md">{{ report.technical_analysis | markdown | safe }}</div>
+      </div>
+      <div class="analysis-card">
+        <h3>📰 뉴스·공시 분석</h3>
+        <div class="md">{{ report.news_disclosure_analysis | markdown | safe }}</div>
+      </div>
+      <div class="analysis-card">
+        <h3>💰 밸류에이션</h3>
+        <div class="md">{{ report.valuation_analysis | markdown | safe }}</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      본 리포트는 AI Agent Team에 의해 자동 생성되었습니다. 투자 판단 및 책임은 투자자 본인에게 있으며,
+      본 자료는 참고용이며 투자 권유가 아닙니다. 데이터 출처: DART, KRX (pykrx), 웹 검색.
+    </div>
+  </div>
+
+  <script>
+    const chartData = {{ chart_data_json | safe }};
+    const labels = chartData.map(d => d.date);
+    const closes = chartData.map(d => d.close);
+    const volumes = chartData.map(d => d.volume);
+
+    const ma = (arr, n) => arr.map((_, i) => {
+      if (i < n - 1) return null;
+      const slice = arr.slice(i - n + 1, i + 1);
+      return slice.reduce((a, b) => a + b, 0) / n;
+    });
+    const ma20 = ma(closes, 20);
+    const ma60 = ma(closes, 60);
+
+    new Chart(document.getElementById('priceChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: '종가', data: closes, borderColor: '#1f2937', backgroundColor: 'rgba(31,41,55,0.08)', borderWidth: 2, tension: 0.2, fill: true, pointRadius: 0 },
+          { label: 'MA20', data: ma20, borderColor: '#2563eb', borderWidth: 1.5, tension: 0.3, fill: false, pointRadius: 0 },
+          { label: 'MA60', data: ma60, borderColor: '#dc2626', borderWidth: 1.5, tension: 0.3, fill: false, pointRadius: 0 },
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          y: { ticks: { callback: v => v.toLocaleString() + '원' } },
+          x: { ticks: { maxTicksLimit: 10 } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

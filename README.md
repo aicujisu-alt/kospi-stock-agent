@@ -1,6 +1,14 @@
 # KOSPI Stock Analysis Agent Team
 
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
+![Claude](https://img.shields.io/badge/Claude-Agent_SDK-blueviolet?logo=anthropic&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
+![Data](https://img.shields.io/badge/Data-DART_%7C_KRX-orange)
+
 KOSPI 개별 종목 투자 분석 Report 자동 생성 Multi-agent 시스템.
+
+![리포트 스크린샷](docs/screenshot_report.png)
 
 ## 구성
 
@@ -32,7 +40,13 @@ python -m src.main 035420        # NAVER
 python -m src.main 005380        # 현대차
 ```
 
-리포트는 `reports/{종목코드}_{날짜}.html` 로 저장됩니다.
+리포트는 `reports/{종목명}_{날짜}.html` 로 저장됩니다.
+
+## 리포트 예시
+
+> 현대차(005380) 분석 리포트 — 투자의견·목표주가·핵심 리스크·주가 차트·4개 분야 상세 분석 포함
+
+![리포트 전체](docs/screenshot_full.png)
 
 ## 프로젝트 구조
 

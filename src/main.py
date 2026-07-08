@@ -18,8 +18,6 @@ for _stream in (sys.stdout, sys.stderr):
     except (AttributeError, ValueError):
         pass
 
-import anyio
-
 from .config import require_keys
 from .master_agent import analyze_stock
 
@@ -47,11 +45,8 @@ def main() -> int:
     ticker = args.ticker.strip().zfill(6)
     print(f"=== {ticker} 분석 시작 ===")
 
-    async def _run() -> str | None:
-        return await analyze_stock(ticker, verbose=True)
-
     try:
-        report_path = anyio.run(_run)
+        report_path = analyze_stock(ticker, verbose=True)
     except KeyboardInterrupt:
         print("\n중단됨.", file=sys.stderr)
         return 130
@@ -67,7 +62,7 @@ def main() -> int:
         return 0
 
     print(
-        "\n[FAIL] 리포트 생성 실패: Master agent가 save_final_report를 호출하지 않았습니다.",
+        "\n[FAIL] 리포트 생성 실패: 리포트 경로를 반환받지 못했습니다.",
         file=sys.stderr,
     )
     return 3

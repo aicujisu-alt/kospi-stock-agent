@@ -10,25 +10,25 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
 
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 DART_API_KEY = os.getenv("DART_API_KEY", "")
 
 REPORT_OUTPUT_DIR = Path(os.getenv("REPORT_OUTPUT_DIR", PROJECT_ROOT / "reports"))
 REPORT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-MASTER_AGENT_MODEL = os.getenv("MASTER_AGENT_MODEL", "opus")
+# 분석·종합에 사용할 Gemini 모델 (무료 티어: gemini-2.5-flash / gemini-2.0-flash)
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
-FUNDAMENTAL_AGENT_MODEL = os.getenv("FUNDAMENTAL_AGENT_MODEL", "sonnet")
-TECHNICAL_AGENT_MODEL = os.getenv("TECHNICAL_AGENT_MODEL", "haiku")
-NEWS_DISCLOSURE_AGENT_MODEL = os.getenv("NEWS_DISCLOSURE_AGENT_MODEL", "sonnet")
-VALUATION_AGENT_MODEL = os.getenv("VALUATION_AGENT_MODEL", "sonnet")
+# 뉴스·공시 분석 시 Google Search grounding 사용 여부.
+# 무료 티어 grounding 한도를 소모하며, 실패 시 DART 공시만으로 자동 폴백한다.
+NEWS_USE_WEB_SEARCH = os.getenv("NEWS_USE_WEB_SEARCH", "true").lower() in ("1", "true", "yes")
 
 
 def require_keys() -> None:
     """필수 API 키 확인. 누락 시 친절한 에러."""
     missing = []
-    if not ANTHROPIC_API_KEY:
-        missing.append("ANTHROPIC_API_KEY")
+    if not GEMINI_API_KEY:
+        missing.append("GEMINI_API_KEY")
     if not DART_API_KEY:
         missing.append("DART_API_KEY")
     if missing:

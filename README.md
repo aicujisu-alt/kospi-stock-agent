@@ -1,7 +1,7 @@
 # KOSPI Stock Analysis Agent Team
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
-![Claude](https://img.shields.io/badge/Claude-Agent_SDK-blueviolet?logo=anthropic&logoColor=white)
+![Gemini](https://img.shields.io/badge/Google-Gemini-4285F4?logo=googlegemini&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 ![Data](https://img.shields.io/badge/Data-DART_%7C_KRX-orange)
@@ -27,10 +27,14 @@ KOSPI 개별 종목 투자 분석 Report 자동 생성 Multi-agent 시스템.
 ```powershell
 python -m pip install -r requirements.txt
 copy .env.example .env
-# .env 파일을 열어 ANTHROPIC_API_KEY와 DART_API_KEY 입력
+# .env 파일을 열어 GEMINI_API_KEY와 DART_API_KEY 입력
 ```
 
-DART API Key는 [opendart.fss.or.kr](https://opendart.fss.or.kr/) 무료 가입 후 발급.
+- **Gemini API Key**: [Google AI Studio](https://aistudio.google.com/apikey)에서 무료 발급 (무료 티어 제공).
+- **DART API Key**: [opendart.fss.or.kr](https://opendart.fss.or.kr/) 무료 가입 후 발급.
+
+> 분석은 Google Gemini 무료 티어로 동작하며 Anthropic API 종량 과금이 발생하지 않습니다.
+> 무료 티어에는 일일 호출 한도가 있습니다.
 
 ## 사용법
 
@@ -54,16 +58,18 @@ python -m src.main 005380        # 현대차
 src/
 ├── main.py              # CLI 진입점
 ├── config.py            # 환경설정
-├── master_agent.py      # Master Agent (오케스트레이션)
-├── agents/              # 4개 Sub-agent 정의
-├── data/                # DART, KRX, 뉴스 데이터 클라이언트
+├── master_agent.py      # 오케스트레이션 (데이터 수집 → 4분석 → 종합 → 저장)
+├── llm.py               # Gemini 클라이언트 (분석 markdown / 구조화 종합)
+├── stock_data.py        # DART·KRX 데이터 수집 (gather)
+├── agents/              # 4개 분석 시스템 프롬프트
+├── data/                # DART, KRX 데이터 클라이언트
 └── report/              # HTML 리포트 생성 (Jinja2)
 ```
 
 ## 기술 스택
 
 - Python 3.10+
-- [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-python)
+- [Google Gemini](https://ai.google.dev/) ([google-genai](https://github.com/googleapis/python-genai)) — 분석·종합 LLM
 - [pykrx](https://github.com/sharebook-kr/pykrx) — KRX 데이터
 - DART OpenAPI — 공시·재무제표
 - Jinja2 + Chart.js — HTML 리포트

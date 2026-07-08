@@ -1,11 +1,11 @@
-from .fundamental import FUNDAMENTAL_AGENT
-from .technical import TECHNICAL_AGENT
-from .news_disclosure import NEWS_DISCLOSURE_AGENT
-from .valuation import VALUATION_AGENT
+from .fundamental import FUNDAMENTAL_PROMPT
+from .technical import TECHNICAL_PROMPT
+from .news_disclosure import NEWS_DISCLOSURE_PROMPT
+from .valuation import VALUATION_PROMPT
 
 __all__ = [
-    "FUNDAMENTAL_AGENT",
-    "TECHNICAL_AGENT",
-    "NEWS_DISCLOSURE_AGENT",
-    "VALUATION_AGENT",
+    "FUNDAMENTAL_PROMPT",
+    "TECHNICAL_PROMPT",
+    "NEWS_DISCLOSURE_PROMPT",
+    "VALUATION_PROMPT",
 ]

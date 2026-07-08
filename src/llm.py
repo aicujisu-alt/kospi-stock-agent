@@ -19,9 +19,23 @@ logger = logging.getLogger(__name__)
 
 _client: genai.Client | None = None
 
-# 무료 티어 rate limit(429/RESOURCE_EXHAUSTED) 대비 재시도
-_MAX_RETRIES = 3
-_RETRY_BACKOFF_SEC = 20
+# 일시적 오류 재시도:
+#   - rate limit (429 / RESOURCE_EXHAUSTED) — 무료 티어 분당 한도
+#   - 일시적 서버 오류 (503 UNAVAILABLE / 500 INTERNAL 등) — 모델 과부하 스파이크
+_MAX_RETRIES = 4
+_RETRY_BACKOFF_SEC = 10
+
+# str(err)에 나타나는 재시도 대상 키워드 (버전 무관하게 견고하도록 문자열 매칭)
+_RETRYABLE_MARKERS = (
+    "429",
+    "RESOURCE_EXHAUSTED",
+    "RATE LIMIT",
+    "UNAVAILABLE",       # 503
+    "INTERNAL",          # 500
+    "DEADLINE_EXCEEDED",
+    "OVERLOADED",
+    "HIGH DEMAND",
+)
 
 
 def _get_client() -> genai.Client:
@@ -31,9 +45,9 @@ def _get_client() -> genai.Client:
     return _client
 
 
-def _is_rate_limit(err: Exception) -> bool:
+def _is_retryable(err: Exception) -> bool:
     msg = str(err).upper()
-    return "429" in msg or "RESOURCE_EXHAUSTED" in msg or "RATE" in msg
+    return any(marker in msg for marker in _RETRYABLE_MARKERS)
 
 
 def _generate(config: types.GenerateContentConfig, contents: str) -> str:
@@ -50,9 +64,12 @@ def _generate(config: types.GenerateContentConfig, contents: str) -> str:
             return (resp.text or "").strip()
         except Exception as e:  # noqa: BLE001 — SDK 예외 종류가 버전마다 달라 광범위 처리
             last_err = e
-            if _is_rate_limit(e) and attempt < _MAX_RETRIES:
+            if _is_retryable(e) and attempt < _MAX_RETRIES:
                 wait = _RETRY_BACKOFF_SEC * attempt
-                logger.warning("Gemini rate limit, %d초 후 재시도 (%d/%d)", wait, attempt, _MAX_RETRIES)
+                logger.warning(
+                    "Gemini 일시적 오류, %d초 후 재시도 (%d/%d): %s",
+                    wait, attempt, _MAX_RETRIES, str(e)[:120],
+                )
                 time.sleep(wait)
                 continue
             raise
